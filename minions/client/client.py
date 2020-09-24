@@ -13,21 +13,30 @@ class Client:
         config.read(path)
 
         # TO DO
-        # check if that data is in the right format
+        # check if the data is in the right format
 
-        print(requests.post(url="http://" + self.host + ":" +
-                            str(self.port) + "/minions", json=config._sections))
+        requests.post(url="http://" + self.host + ":" +
+                      str(self.port) + "/minions", json=config._sections)
 
     def cracking_password(self, hashed_password):
 
         # TO DO
-        # check if that data is in the right format
+        # check if the data is in the right format
 
-        print(requests.post(url="http://" + self.host + ":" + str(self.port) +
-                            "/crack", json={"hashed_password": hashed_password}))
+        requests.post(url="http://" + self.host + ":" + str(self.port) +
+                      "/crack", json={"hashed_password": hashed_password})
 
 
-def upload_config(host, port, hashed_password, path):
+def upload_config(host, port, path):
     client = Client(host, port)
     client.setting_up_minions(path)
-    client.cracking_password(hashed_password)
+
+
+def crack_password(hashed_password):
+    if client:
+        client.cracking_password(hashed_password)
+    else:
+        print("Please upload configuration first")
+
+
+client = None
