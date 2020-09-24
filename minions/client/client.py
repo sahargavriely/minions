@@ -1,5 +1,8 @@
 import configparser
 import requests
+import hashlib
+
+client = None
 
 
 class Client:
@@ -8,35 +11,17 @@ class Client:
         self.host = host
         self.port = port
 
-    def setting_up_minions(self, path):
+    def cracking_password(self, path, hashed_password):
         config = configparser.ConfigParser()
         config.read(path)
-
+        data = {"hashed_password": hashlib.md5(
+            hashed_password.encode()).hexdigest(), "config": config._sections}
         # TO DO
         # check if the data is in the right format
-
         requests.post(url="http://" + self.host + ":" +
-                      str(self.port) + "/minions", json=config._sections)
-
-    def cracking_password(self, hashed_password):
-
-        # TO DO
-        # check if the data is in the right format
-
-        requests.post(url="http://" + self.host + ":" + str(self.port) +
-                      "/crack", json={"hashed_password": hashed_password})
+                      str(self.port) + "/minions", json=data)
 
 
-def upload_config(host, port, path):
+def upload_config(host, port, hashedpassword, path):
     client = Client(host, port)
-    client.setting_up_minions(path)
-
-
-def crack_password(hashed_password):
-    if client:
-        client.cracking_password(hashed_password)
-    else:
-        print("Please upload configuration first")
-
-
-client = None
+    client.cracking_password(path, hashedpassword)

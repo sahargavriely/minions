@@ -3,7 +3,7 @@ import sys
 import os
 import traceback
 
-from minions.client.client import upload_config, crack_password
+from minions.client.client import upload_config
 
 
 class Log:
@@ -38,13 +38,13 @@ def main(quiet=False, traceback=False):
 @click.option('--port', '-p',
               default="8000",
               show_default='8000')
-@click.option('--hashed_password', '-ph',
-              default="0000000000",
-              show_default='0000000000')
+@click.option('--hashedpassword', '-hp',
+              default="0500000000",
+              show_default='0500000000')
 @click.argument('path')
-def client_upload_config(host, port, hashed_password, path):
+def client_upload_config(host, port, hashedpassword, path):
     log(upload_config(host=host, port=port,
-                      hashed_password=hashed_password, path=path))
+                      hashedpassword=hashedpassword, path=path))
 
 
 @main.command('crack-password')

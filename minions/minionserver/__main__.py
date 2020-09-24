@@ -1,9 +1,9 @@
-import os
 import sys
+import os
 import traceback
 import click
 
-from minions.server.mastersrver import server
+from minions.minionserver.minionserver import server
 
 
 class Log:
@@ -42,4 +42,4 @@ if __name__ == '__main__':
         main(prog_name='minions', obj={})
     except Exception as error:
         log(f'ERROR: {error}')
-        sys.exit(42)
+        sys.exit(1)
