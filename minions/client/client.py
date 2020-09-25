@@ -18,10 +18,19 @@ class Client:
             hashed_password.encode()).hexdigest(), "config": config._sections}
         # TO DO
         # check if the data is in the right format
-        requests.post(url="http://" + self.host + ":" +
-                      str(self.port) + "/minions", json=data)
+        print(requests.post(url="http://" + self.host + ":" +
+                            str(self.port) + "/minions", json=data).json())
+
+    def reset_master(self):
+        print(requests.post(url="http://" + self.host + ":" +
+                            str(self.port) + "/reminions").json())
 
 
 def upload_config(host, port, hashedpassword, path):
     client = Client(host, port)
     client.cracking_password(path, hashedpassword)
+
+
+def reset_server(host, port):
+    client = Client(host, port)
+    client.reset_master()

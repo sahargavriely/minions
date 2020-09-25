@@ -3,7 +3,7 @@ import sys
 import os
 import traceback
 
-from minions.client.client import upload_config
+from minions.client.client import upload_config, reset_server
 
 
 class Log:
@@ -47,10 +47,11 @@ def client_upload_config(host, port, hashedpassword, path):
                       hashedpassword=hashedpassword, path=path))
 
 
-@main.command('crack-password')
-@click.argument('hashed_password')
-def client_crack_password(hashed_password):
-    log(crack_password(hashed_password=hashed_password))
+@main.command('reset-server')
+@click.option('--host', '-h', default="127.0.0.1", show_default='127.0.0.1', help="Host")
+@click.option('--port', '-p', default="8000", show_default='8000', help="Port")
+def client_reset_server(host, port):
+    log(reset_server(host=host, port=port))
 
 
 if __name__ == '__main__':
