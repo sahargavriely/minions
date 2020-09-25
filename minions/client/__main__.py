@@ -32,19 +32,12 @@ def main(quiet=False, traceback=False):
 
 
 @main.command('upload-config')
-@click.option('--host', '-h',
-              default="127.0.0.1",
-              show_default='127.0.0.1')
-@click.option('--port', '-p',
-              default="8000",
-              show_default='8000')
-@click.option('--hashedpassword', '-hp',
-              default="0500000000",
-              show_default='0500000000')
+@click.option('--host', '-h', default="127.0.0.1", show_default='127.0.0.1')
+@click.option('--port', '-p', default="8000", show_default='8000')
+@click.option('--hashedpassword', '-hp', default="0500000000", show_default='0500000000')
 @click.argument('path')
 def client_upload_config(host, port, hashedpassword, path):
-    log(upload_config(host=host, port=port,
-                      hashedpassword=hashedpassword, path=path))
+    log(upload_config(host=host, port=port, hashedpassword=hashedpassword, path=path))
 
 
 @main.command('reset-server')

@@ -46,5 +46,5 @@ def new_start():
                 minion_name.replace(" ", "") + "\\from.txt", "r")
     phone = file.read()
     file.close()
-    print("pspspspspspspspspssp  " + phone)
+    print(phone)
     return {"from": phone}

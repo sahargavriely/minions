@@ -32,9 +32,8 @@ def set_minions():
 
 @app.route('/reminions', methods=['POST'])
 def reset_minions():
-    file = open("cache\\cachemaster\\master.txt", "r")
-    data = json.loads(file.read())
-    file.close()
+    with open("cache\\cachemaster\\master.txt", "r") as file:
+        data = json.load(file)
     return master_server(data)
 
 
@@ -75,12 +74,11 @@ def ever_ending_search(minions, hashed_password):
                     initiate_search(minion, hashed_password, minion_name)
         # save our current state every 10 sec
         time.sleep(10)
-        data = json.dumps(
-            {"config": minions, "hashed_password": hashed_password})
         with open("cache\\cachemaster\\master.txt", "w") as file:
-            file.write(data)
-        os.system('echo "' + data +
-                  '" > cache\\cachemaster\\master.txt')
+            json.dump(
+                {"config": minions, "hashed_password": hashed_password}, file)
+        # os.system('echo "' + data +
+        #          '" > cache\\cachemaster\\master.txt')
     return "not found"
 
 
