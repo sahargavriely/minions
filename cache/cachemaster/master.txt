@@ -1,1 +1,0 @@
-{"config": {"up local or not local": {"state": "done", "host": "127.0.0.1", "port": "5559", "from": 17900000, "to": 49999999, "reasult": "0520900099"}, "up local or not local 2": {"state": "searching", "host": "127.0.0.1", "port": "5558", "from": 68000000, "to": 99999998}}, "hashed_password": "0f3983acdbc20a861a35baef4aa43161"}
