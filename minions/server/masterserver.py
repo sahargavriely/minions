@@ -4,6 +4,7 @@ import os
 import threading
 import time
 import json
+from shutil import copyfile
 # from flask_cors import CORS
 
 
@@ -11,11 +12,13 @@ app = Flask(__name__)
 # CORS(app)
 
 
-minion_server = "print('hello word')"
+MINION_SERVER_PATH = r'C:\temp\minions\minions\minionserver\minionserver.py'
+PSEXEC = r'C:\temp\minions\minions\minionserver\psexec.exe'
+REMOTE_PYTHON_PATH = r'c:\Users\OMER-TEST\AppData\Local\Programs\Python\Python35\python.exe'
 minion_main = "print('hello word')"
 
 
-def server(host, port):
+def server(host='localhost', port=8000):
     app.run(host, port, debug=True)
 
 
@@ -124,40 +127,57 @@ def set_up_minions(minions):
 
 
 def set_up_minion(minion):
-    # if the minion is needed to be set-up
-    if "state" not in minion or minion["state"] != "up":
-        minion["state"] = "up"
-        if "port" not in minion:
-            minion["port"] = "8000"
-        if "host" not in minion:
-            minion["host"] = minion["ip"]
-        try:
-            # if it's not on the same machine
-            if minion["ip"] != master_server["host"]:
-                # getting a net use connection
-                if "password" not in minion or minion["password"] == "":
-                    os.system("net use p: \\\\" +
-                              minion["ip"] + "\\Users\\" + minion["user"])
-                else:
-                    os.system("net use p: \\\\" + minion["ip"] + "\\Users\\" + minion["user"] +
-                              " " + minion["password"] + " /user:" + minion["user"])
-                # moving to the shared computer
-                os.chdir('P:')
-                os.chdir('Desktop')
-                os.system("mkdir minions\\minionserver")
-                # copying minionserver.py
-                os.system("echo " + minion_server +
-                          "> minions\\minionserver\\minionserver.py")
-                # copying __main__.py
-                os.system("echo " + minion_main +
-                          "> minions\\minionserver\\__main__.py")
-            # running server
-            os.system("python -m minions.minionserver run-server -h " +
-                      minion["host"] + " -p " + minion["port"])
-            # if it's not on the same machine
-            if minion["ip"] != "localhost":
-                os.chdir('C:')
-                # closing connection
-                os.system("net use p: /delete")
-        except:
-            minion["state"] = "error"
+    try:
+        if minion["state"] != "up" and minion["state"] != "searching":
+            print('aaaaa')
+            connection = MinionSetupWindowsConnecor(minion["host"])
+            print('aaaaa')
+
+            connection.connect(minion["user"], minion["password"])
+
+            # copying minionserver.py
+            connection.upload(MINION_SERVER_PATH)
+            
+            connection.run()
+    # running server
+        # os.system("python -m minions.minionserver run-server -h " +
+        #             minion["host"] + " -p " + minion["port"])
+        # # if it's not on the same machine
+        # if minion["ip"] != "localhost":
+        #     os.chdir('C:')
+        #     # closing connection
+        #     os.system("net use p: /delete")
+    except:
+        minion["state"] = "error"
+
+class MinionSetupWindowsConnecor:
+    def __init__(self, host):
+        self.host = host
+        self.temp_dir = ''
+
+
+    def connect(self, user, pswd):
+        print(r'net use  \\%s\C$ %s /user:%s' % (self.host, pswd, user))
+        print(r'net use  \\%s\IPC$ %s /user:%s' % (self.host, pswd, user))
+        os.system(r'net use  \\%s\C$ %s /user:%s' % (self.host, pswd, user))
+        self.temp_dir = r'\\%s\C$\temp' % (self.host, )
+        os.system('mkdir ' + self.temp_dir)
+
+    
+    def disconnect(self):
+        os.system(r"net use \\%s\IPC$ /delete" % (self.host))
+        os.system(r"net use \\%s\C$ /delete" % (self.host))
+
+    def upload(self, local_path):
+        os.system('copy ' + local_path + ' '+  self.temp_dir + "\\" + os.path.basename(local_path))
+
+    def run(self):
+        os.system(r'%s /S \\%s -i %s' % (PSEXEC, self.host, REMOTE_PYTHON_PATH))
+ 
+if __name__ == "__main__":
+    # set_up_minion({
+    #     'user': 'Administrator',
+    #     'password': 'Password1!',
+    #     'host': 'omer-test-pc'
+    # })
+    server()

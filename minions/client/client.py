@@ -1,6 +1,7 @@
 import configparser
 import requests
 import hashlib
+import sys
 
 client = None
 
@@ -34,3 +35,7 @@ def upload_config(host, port, hashedpassword, path):
 def reset_server(host, port):
     client = Client(host, port)
     client.reset_master()
+
+if __name__ == '__main__':
+    client = Client('localhost', 8000)
+    client.cracking_password(sys.argv[1], sys.argv[2])
