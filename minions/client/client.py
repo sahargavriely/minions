@@ -15,16 +15,11 @@ class Client:
     def cracking_password(self, path, hashed_password):
         config = configparser.ConfigParser()
         config.read(path)
-        data = {"hashed_password": hashlib.md5(
-            hashed_password.encode()).hexdigest(), "config": config._sections}
-        # TO DO
-        # check if the data is in the right format
-        print(requests.post(url="http://" + self.host + ":" +
-                            str(self.port) + "/minions", json=data).json())
+        data = {"hashed_password": hashlib.md5(hashed_password.encode()).hexdigest(), "config": config._sections}
+        print(requests.post(url="http://" + self.host + ":" + str(self.port) + "/minions", json=data).json())
 
     def reset_master(self):
-        print(requests.post(url="http://" + self.host + ":" +
-                            str(self.port) + "/reminions").json())
+        print(requests.post(url="http://" + self.host + ":" + str(self.port) + "/reminions").json())
 
 
 def upload_config(host, port, hashedpassword, path):
@@ -35,7 +30,3 @@ def upload_config(host, port, hashedpassword, path):
 def reset_server(host, port):
     client = Client(host, port)
     client.reset_master()
-
-if __name__ == '__main__':
-    client = Client('localhost', 8000)
-    client.cracking_password(sys.argv[1], sys.argv[2])

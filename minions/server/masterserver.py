@@ -14,8 +14,7 @@ app = Flask(__name__)
 
 MINION_SERVER_PATH = r'C:\temp\minions\minions\minionserver\minionserver.py'
 PSEXEC = r'C:\temp\minions\minions\minionserver\psexec.exe'
-REMOTE_PYTHON_PATH = r'c:\Users\OMER-TEST\AppData\Local\Programs\Python\Python35\python.exe'
-minion_main = "print('hello word')"
+REMOTE_PYTHON_PATH = r'c:\Users\%s\AppData\Local\Programs\Python\Python35\python.exe'
 
 
 def server(host='localhost', port=8000):
@@ -35,7 +34,7 @@ def set_minions():
 
 @app.route('/reminions', methods=['POST'])
 def reset_minions():
-    with open("cache\\cachemaster\\master.txt", "r") as file:
+    with open(r"cache\cachemaster\master.txt", "r") as file:
         data = json.load(file)
     return master_server(data)
 
@@ -50,7 +49,7 @@ def master_server(data):
 
 
 def ever_ending_search(minions, hashed_password):
-    os.system("mkdir cache\\cachemaster")
+    os.system(r"mkdir cache\cachemaster")
     working_minions = 0
     for minion_name in minions:
         minion = minions[minion_name]
@@ -68,20 +67,17 @@ def ever_ending_search(minions, hashed_password):
             # mid search
             if minion["state"] == "searching":
                 try:
-                    minion["from"] = int(requests.get(url="http://" + minion["host"] + ":" +
-                                                      minion["port"] + "/from", json={"minion name": minion_name}).json()["from"])
+                    minion["start from"] = int(requests.get(url="http://" + minion["host"] + ":" +
+                                                      minion["port"] + "/newfrom", json={"minion name": minion_name}).json()["start from"])
                 # the server has fallan and need to restart
                 except:
                     minion["state"] = "down"
                     set_up_minion(minion)
                     initiate_search(minion, hashed_password, minion_name)
-        # save our current state every 10 sec
         time.sleep(10)
-        with open("cache\\cachemaster\\master.txt", "w") as file:
-            json.dump(
-                {"config": minions, "hashed_password": hashed_password}, file)
-        # os.system('echo "' + data +
-        #          '" > cache\\cachemaster\\master.txt')
+        # save our current state every 10 sec
+        with open(r"cache\cachemaster\master.txt", "w") as file:
+            json.dump({"config": minions, "hashed_password": hashed_password}, file)
     return "not found"
 
 
@@ -93,8 +89,7 @@ def cracking(minions, hashed_password):
 
 def initiate_search(minion, hashed_password, minion_name):
     try:
-        threading.Thread(
-            target=minion_thread, args=(minion, hashed_password, minion_name, )).start()
+        threading.Thread(target=minion_thread, args=(minion, hashed_password, minion_name, )).start()
     except:
         minion["state"] = "error"
 
@@ -102,26 +97,21 @@ def initiate_search(minion, hashed_password, minion_name):
 def minion_thread(minion, hashed_password, minion_name):
     minion["state"] = "searching"
     minion["reasult"] = requests.get(url="http://" + minion["host"] + ":" +
-                                     minion["port"] + "/crack", json={"hashed password": hashed_password, "from": minion["from"], "to": minion["to"], "minion name": minion_name}).json()["password"]
+                                     minion["port"] + "/crack", json={"hashed password": hashed_password, "start from": minion["start from"], "to": minion["to"], "minion name": minion_name}).json()["password"]
     minion["state"] = "done"
 
 
 def set_up_minions(minions):
-    for minion_name in minions:
-        minion = minions[minion_name]
-        set_up_minion(minion)
-
     working_minions = 0
     for minion_name in minions:
         minion = minions[minion_name]
-        if minion["state"] == "up":
-            working_minions += 1
+        working_minions += set_up_minion(minion)
+
     i = 0
     for minion_name in minions:
         minion = minions[minion_name]
         if minion["state"] == "up":
-            minion = minions[minion_name]
-            minion["from"] = 99999999//working_minions * i
+            minion["start from"] = 99999999//working_minions * i
             i += 1
             minion["to"] = 99999999//working_minions * i
 
@@ -129,26 +119,19 @@ def set_up_minions(minions):
 def set_up_minion(minion):
     try:
         if minion["state"] != "up" and minion["state"] != "searching":
-            print('aaaaa')
-            connection = MinionSetupWindowsConnecor(minion["host"])
-            print('aaaaa')
-
-            connection.connect(minion["user"], minion["password"])
-
-            # copying minionserver.py
-            connection.upload(MINION_SERVER_PATH)
-            
-            connection.run()
-    # running server
-        # os.system("python -m minions.minionserver run-server -h " +
-        #             minion["host"] + " -p " + minion["port"])
-        # # if it's not on the same machine
-        # if minion["ip"] != "localhost":
-        #     os.chdir('C:')
-        #     # closing connection
-        #     os.system("net use p: /delete")
+            if minion["local"] != "yes":
+                connection = MinionSetupWindowsConnecor(minion["host"])
+                connection.connect(minion["user"], minion["password"])
+                connection.upload(MINION_SERVER_PATH)
+                connection.run()
+            else:
+                os.system(r"start python -m minions.minionserver run-server -h %s -p %s" %(minion["host"], minion["port"]))
+            minion["state"] = "up"
+            time.sleep(3)
+        return 1
     except:
         minion["state"] = "error"
+        return 0
 
 class MinionSetupWindowsConnecor:
     def __init__(self, host):
@@ -172,7 +155,7 @@ class MinionSetupWindowsConnecor:
         os.system('copy ' + local_path + ' '+  self.temp_dir + "\\" + os.path.basename(local_path))
 
     def run(self):
-        os.system(r'%s /S \\%s -i %s' % (PSEXEC, self.host, REMOTE_PYTHON_PATH))
+        os.system(r'%s /S \\%s -i %s' % (PSEXEC, self.host, REMOTE_PYTHON_PATH %(self.host)))
  
 if __name__ == "__main__":
     # set_up_minion({

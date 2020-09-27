@@ -1,6 +1,7 @@
 # minions
 
 cracking passw0rds (Pcycys)
-aaaaaaaaaaaaaaaaaa
-bbbbbbbbbbbbbb
-cccccccccc
+
+read the word doc.
+
+never understood the useage of txt file as readme instead of word file
