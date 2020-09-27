@@ -158,9 +158,4 @@ class MinionSetupWindowsConnecor:
         os.system(r'%s /S \\%s -i %s' % (PSEXEC, self.host, REMOTE_PYTHON_PATH %(self.host)))
  
 if __name__ == "__main__":
-    # set_up_minion({
-    #     'user': 'Administrator',
-    #     'password': 'Password1!',
-    #     'host': 'omer-test-pc'
-    # })
     server()
