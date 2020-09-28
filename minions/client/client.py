@@ -15,7 +15,8 @@ class Client:
     def cracking_password(self, path, hashed_password):
         config = configparser.ConfigParser()
         config.read(path)
-        data = {"hashed_password": hashlib.md5(hashed_password.encode()).hexdigest(), "config": config._sections}
+        # data = {"hashed_password": hashlib.md5(hashed_password.encode()).hexdigest(), "config": config._sections}
+        data = {"hashed_password": hashed_password, "config": config._sections}
         print(requests.post(url="http://" + self.host + ":" + str(self.port) + "/minions", json=data).json())
 
     def reset_master(self):
