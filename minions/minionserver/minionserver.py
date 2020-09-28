@@ -3,11 +3,9 @@ import requests
 import os
 import hashlib
 import time
-# from flask_cors import CORS
 
 
 app = Flask(__name__)
-# CORS(app)
 
 
 def server(host, port):

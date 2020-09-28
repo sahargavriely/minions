@@ -5,11 +5,9 @@ import threading
 import time
 import json
 from shutil import copyfile
-# from flask_cors import CORS
 
 
 app = Flask(__name__)
-# CORS(app)
 
 
 MINION_SERVER_PATH = r'C:\temp\minions\minions\minionserver\minionserver.py'
